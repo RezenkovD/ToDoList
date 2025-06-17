@@ -12,7 +12,7 @@ from src.services.task import create_task, delete_task, get_tasks, update_task
 router = APIRouter()
 
 
-@router.post("/tasks", response_model=TaskOut)
+@router.post("/tasks", response_model=TaskOut, status_code=201)
 def create(task: TaskCreate, db: Session = Depends(get_db), request: Request = None):
     logger.info(f"{request.method} {request.url}")
     created_task = create_task(db, task)
