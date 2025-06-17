@@ -1,0 +1,39 @@
+services:
+  db:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: todo_db
+      POSTGRES_USER: todo_user
+      POSTGRES_PASSWORD: todo_password
+    ports:
+      - "5433:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+
+  app:
+    build: .
+    depends_on:
+      - db
+    environment:
+      SQLALCHEMY_DATABASE_URI: postgresql://todo_user:todo_password@db:5432/todo_db
+      APP_HOST: 0.0.0.0
+      APP_PORT: 8000
+      PYTHONPATH: /app/src
+    ports:
+      - "8000:8000"
+    command: >
+      sh -c "alembic upgrade head && uvicorn src.main:app --host 0.0.0.0 --port 8000"
+
+  test:
+    build: .
+    depends_on:
+      - db
+    environment:
+      SQLALCHEMY_DATABASE_URI: postgresql://todo_user:todo_password@db:5432/test_todo_db
+      PYTHONPATH: /app/src
+    command: >
+      sh -c "pytest tests/"
+    tty: true
+
+volumes:
+  postgres_data:
