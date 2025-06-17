@@ -6,6 +6,7 @@ from sqlalchemy_utils import create_database, database_exists, drop_database
 
 from src.core.config import settings
 from src.database.base_model import Base
+from src.database.database import get_db
 from src.main import app as main_app
 
 TEST_DATABASE_URI = settings.SQLALCHEMY_DATABASE_URI
@@ -20,6 +21,9 @@ def override_get_db():
         yield db
     finally:
         db.close()
+
+
+main_app.dependency_overrides[get_db] = override_get_db
 
 
 @pytest.fixture(scope="session", autouse=True)
